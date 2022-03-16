@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import poolNumber from './routes/poolNumber.route';
+import poolNumber from './routes/poolActivation.route';
 
 const router = Router();
 

@@ -1,6 +1,5 @@
 export interface ICbs {
-	state: string;
-	activationYear: string;
+	lifeCycleState: string;
 	paidMode: '0' | '1' | '2';
-	paidModeName: 'PREPAID' | 'POSTPAID' | 'HYBRID';
+	paidModeName?: 'PREPAID' | 'POSTPAID' | 'HYBRID' | 'UNDEFINED';
 }

@@ -9,6 +9,8 @@ import messages from '../utils/messages/app.messages';
 const errorHandler = (error: any, req: Request, res: Response, _next: NextFunction) => {
 	const channelID: string = req.body.channelID || req.query.channelID;
 
+	console.log(error);
+
 	const response = {
 		timestamp: moment(),
 		requestID: req.body?.requestID || req.query?.requestID,
