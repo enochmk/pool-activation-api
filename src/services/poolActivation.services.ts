@@ -12,14 +12,14 @@ export const poolActivation = async (data: InitAcquisitionInput) => {
 
 	const cbsInfo = await api.integrationEnquiry(requestID, msisdn);
 
-	// ! Not in pool
-	if (cbsInfo.lifeCycleState !== IN_POOL) {
-		throw new HttpError('Number not in pool', 400, 'USER');
-	}
-
 	// ! Not prepaid
 	if (cbsInfo.paidMode !== PREPAID) {
 		throw new HttpError('Number not prepaid', 400, 'USER');
+	}
+
+	// ! Not in pool
+	if (cbsInfo.lifeCycleState !== IN_POOL) {
+		throw new HttpError('Number not in pool', 400, 'USER');
 	}
 
 	// Delete number
