@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/enochmk/cbs-automation-api/compare/v1.1.0...v1.2.0) (2022-03-17)
+
+
+### Features
+
+* add agentID to deleteNumber remark param ([ced2a3b](https://github.com/enochmk/cbs-automation-api/commit/ced2a3b785176680955413aff54cdc3f1dc0076a))
+
+
+### Bug Fixes
+
+* update the order. Check Paidmode before lifecycle ([dbdfb33](https://github.com/enochmk/cbs-automation-api/commit/dbdfb337bc8c427e23cacb87b62f0589be6a141e))
+
 ## 1.1.0 (2022-03-17)
 
 
