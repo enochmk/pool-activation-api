@@ -87,7 +87,7 @@ export const integrationEnquiry = async (requestID: string, msisdn: string) => {
 	return cbsInfo;
 };
 
-export const deleteNumber = async (requestID: string, msisdn: string) => {
+export const deleteNumber = async (requestID: string, msisdn: string, agentID: string) => {
 	const soapActionConfig = {
 		headers: {
 			'Content-Type': 'text/xml',
@@ -115,7 +115,7 @@ export const deleteNumber = async (requestID: string, msisdn: string) => {
 								</com:SessionEntity>
 								<com:SerialNo>${newRequestID}</com:SerialNo>
 								<!--Optional:-->
-								<com:Remark>Pool recreation</com:Remark>
+								<com:Remark>Pool_recreation_${agentID}</com:Remark>
 						</RequestHeader>
 						<DeleteSubscriberRequest>
 								<bus1:SubscriberNo>
