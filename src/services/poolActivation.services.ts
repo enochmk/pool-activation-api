@@ -1,4 +1,6 @@
-import * as api from '../api/cbs.api';
+import createNumber from '../api/createNumber.api';
+import deleteNumber from '../api/deleteNumber.api';
+import integrationEnquiry from '../api/integrationEnquiry.api';
 import HttpError from '../utils/errors/HttpError';
 import { InitAcquisitionInput } from '../validations/poolActivation.schema';
 
@@ -10,7 +12,7 @@ export const poolActivation = async (data: InitAcquisitionInput) => {
 	const msisdn = data.msisdn;
 	const agentID = data.agentID;
 
-	const cbsInfo = await api.integrationEnquiry(requestID, msisdn);
+	const cbsInfo = await integrationEnquiry(requestID, msisdn);
 
 	// ! Not prepaid
 	if (cbsInfo.paidMode !== PREPAID) {
@@ -23,8 +25,8 @@ export const poolActivation = async (data: InitAcquisitionInput) => {
 	}
 
 	// Delete number
-	await api.deleteNumber(requestID, msisdn);
-	await api.createNumber(requestID, msisdn, agentID);
+	await deleteNumber(requestID, msisdn, agentID);
+	await createNumber(requestID, msisdn, agentID);
 
 	return {
 		success: true,
