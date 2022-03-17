@@ -156,7 +156,7 @@ export const deleteNumber = async (requestID: string, msisdn: string) => {
 	return true;
 };
 
-export const createNumber = async (requestID: string, msisdn: string) => {
+export const createNumber = async (requestID: string, msisdn: string, agentID: string) => {
 	const soapActionConfig = {
 		headers: {
 			'Content-Type': 'text/xml',
@@ -184,7 +184,7 @@ export const createNumber = async (requestID: string, msisdn: string) => {
 								</com:SessionEntity>
 								<com:SerialNo>${newRequestID}</com:SerialNo>
 								<!--Optional:-->
-								<com:Remark>Pool recreation</com:Remark>
+								<com:Remark>Pool_recreation_${agentID}</com:Remark>
 						</RequestHeader>
 						<NewSubscriberRequest>
 								<bus1:SubscriberNo>${msisdn}</bus1:SubscriberNo>
