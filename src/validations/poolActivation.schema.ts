@@ -14,7 +14,7 @@ const schema = {
 	name: yup.string().min(1).max(70).required(),
 };
 
-export const initAcquisitionSchema = yup.object({
+export const poolActivationSchema = yup.object({
 	body: yup.object({
 		requestID: schema.requestID,
 		agentID: schema.name,
@@ -22,4 +22,21 @@ export const initAcquisitionSchema = yup.object({
 	}),
 });
 
-export type InitAcquisitionInput = yup.InferType<typeof initAcquisitionSchema>['body'];
+export const batchPoolActivationSchema = yup.object({
+	body: yup.object({
+		requestID: schema.requestID,
+		agentID: schema.name,
+	}),
+	file: yup.object({
+		fieldname: schema.name,
+		originalname: schema.name,
+		destination: schema.name,
+		filename: schema.name,
+		path: schema.name,
+		size: yup.number().required(),
+		mimetype: yup.string().oneOf(['text/plain']).required(),
+	}),
+});
+
+export type PoolActivationInput = yup.InferType<typeof poolActivationSchema>['body'];
+export type BatchPoolActivationInput = yup.InferType<typeof batchPoolActivationSchema>['body'];
