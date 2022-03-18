@@ -16,10 +16,8 @@ router.route('/download').get((req, res) => {
 	const file: any = req.query.file;
 	const source: string = config.get('upload.output');
 
-	res.download(`${source}/${file}`, (err) => {
-		if (err) {
-			throw err;
-		}
+	return res.download(`${source}/${file}`, (err) => {
+		if (err) throw err;
 	});
 });
 

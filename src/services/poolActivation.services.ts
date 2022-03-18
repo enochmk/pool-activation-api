@@ -1,34 +1,34 @@
 import fs from 'fs';
-import { nanoid } from 'nanoid';
 import config from 'config';
 import moment from 'moment';
 /* eslint-disable arrow-body-style */
 
+import logger from '../utils/loggers/logger';
 import createNumber from '../api/createNumber.api';
 import deleteNumber from '../api/deleteNumber.api';
 import integrationEnquiry from '../api/integrationEnquiry.api';
 import HttpError from '../utils/errors/HttpError';
-import { InitAcquisitionInput } from '../validations/poolActivation.schema';
+import { InitAcquisitionInput as ActivationInput } from '../validations/poolActivation.schema';
 
 const IN_POOL = '5';
 const PREPAID = '0';
 
-export const poolActivation = async (data: InitAcquisitionInput) => {
+export const poolActivation = async (data: ActivationInput) => {
 	const requestID = data.requestID;
-	const msisdn = data.msisdn;
 	const agentID = data.agentID;
+	const msisdn = data.msisdn.replace('\r', '').trim();
 
 	const cbsInfo = await integrationEnquiry(requestID, msisdn);
 
 	// ! Not prepaid
 	if (cbsInfo.paidMode !== PREPAID) {
-		throw new HttpError(`Number not prepaid. Paidmode is ${cbsInfo.paidModeName}`, 400, 'USER');
+		throw new HttpError(`Number not prepaid. Number is ${cbsInfo.paidModeName}`, 400, 'USER');
 	}
 
 	// ! Not in pool
 	if (cbsInfo.lifeCycleState !== IN_POOL) {
 		throw new HttpError(
-			`Number not in pool. Lifecycle is '${cbsInfo.lifeCycleState}'`,
+			`Number not in pool. Lifecycle state is '${cbsInfo.lifeCycleState}'`,
 			400,
 			'USER'
 		);
@@ -45,53 +45,69 @@ export const poolActivation = async (data: InitAcquisitionInput) => {
 };
 
 export const poolActivationBatch = async (data: any, file: any) => {
-	const content = fs.readFileSync(file.path, 'utf8');
-	const msisdns = content.split('\n');
-
-	const result = [];
-	const promises = [];
-	for (let i = 0; i < msisdns.length; i += 1) {
-		const msisdn = msisdns[i].replace('\r', '');
-
-		const input: InitAcquisitionInput = {
-			agentID: data.agentID,
-			requestID: data.requestID,
-			msisdn: msisdn,
-		};
-
-		// promises.push(poolActivation(input))
-
-		try {
-			// eslint-disable-next-line no-await-in-loop
-			const response = await poolActivation(input);
-			result.push({
-				msisdn,
-				message: response.message,
-				status: response.success,
-			});
-		} catch (error: any) {
-			result.push({
-				msisdn,
-				message: error.message,
-				status: false,
-			});
-		}
-	}
-
-	let lines = '';
-	const fileName = `output_${nanoid()}.txt`;
-	const path: string = config.get('upload.output');
-	const destination = `${path}/${fileName}`;
 	const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
+	const currentDate = moment().format('YYYY-MM-DD');
+	const outputFileName = `output-${data.agentID}-${currentDate}.txt`;
+	const outputDestination = `${config.get('upload.output')}/${outputFileName}`;
+	const batchMsisdns = fs.readFileSync(file.path, 'utf8').split('\r\n');
+	const context = {
+		user: data.agentID,
+		requestID: data.requestID,
+		label: 'poolActivationBatch',
+	};
 
-	for (let x = 0; x < result.length; x += 1) {
-		lines += `${timestamp}|${data.agentID}|${result[x].msisdn}|${result[x].status}|${result[x].message}\n`;
-	}
+	const batchActivationToProcess: Array<ActivationInput> = [];
 
-	fs.writeFileSync(destination, lines);
+	batchMsisdns.forEach((row) => {
+		// ! empty row
+		if (!row?.length) return;
+
+		const requestID = data.requestID;
+		const agentID = data.agentID;
+		const msisdn = row.replace('\r', '').trim();
+
+		batchActivationToProcess.push({ requestID, msisdn, agentID });
+	});
+
+	const result: any = [];
+
+	let line = '';
+	await Promise.all(
+		batchActivationToProcess.map(async (item: ActivationInput) =>
+			poolActivation(item)
+				.then((response) => {
+					const msisdn = item.msisdn.replace('\r', '');
+					const newLine = `${timestamp}|${data.agentID}|${msisdn}|${response.success}|${response.message}`;
+					logger.info(newLine, { context });
+
+					line += `${newLine}\n`;
+					fs.writeFileSync(outputDestination, line);
+
+					result.push({
+						msisdn: item.msisdn,
+						message: response.message,
+						status: true,
+					});
+				})
+				.catch((error: any) => {
+					const msisdn = item.msisdn.replace('\r', '');
+					const newLine = `${timestamp}|${data.agentID}|${msisdn}|false|${error.message}`;
+					logger.error(newLine, { context });
+
+					line += `${newLine}\n`;
+					fs.writeFileSync(outputDestination, line);
+
+					result.push({
+						msisdn: item.msisdn,
+						message: error.message,
+						status: false,
+					});
+				})
+		)
+	);
 
 	return {
-		success: true,
-		destination,
+		output: outputDestination,
+		fileName: outputFileName,
 	};
 };

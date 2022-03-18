@@ -20,16 +20,19 @@ export const initAcquisitionBatch = asyncHandler(
 	async (req: Request<{}, {}, InitAcquisitionInput>, res: Response) => {
 		const data = req.body;
 		const file = req.file;
+		const shouldDownload = req.query.download || 'false';
 
 		const response = await poolNumberService.poolActivationBatch(data, file);
 
-		// res.download(response.destination, (err) => {
-		// 	if (err) {
-		// 		console.error(err);
-		// 	} else {
-		// 		console.log('download');
-		// 	}
-		// });
-		res.status(200).json({ ...response });
+		// condition to download or send response
+		if (shouldDownload === 'true') {
+			return res.download(response.output, (err) => {
+				if (err) {
+					throw err;
+				}
+			});
+		}
+
+		return res.status(200).json({ ...response });
 	}
 );

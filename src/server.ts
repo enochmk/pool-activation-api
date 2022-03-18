@@ -17,8 +17,9 @@ const app = express();
 
 app.use(cors());
 app.use(morgan('dev'));
+app.use('file', express.static('public'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 app.use(helmet());
 app.use(hpp());
 app.use('/v1', routes);
