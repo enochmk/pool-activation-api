@@ -31,3 +31,6 @@ src/test.ts
 
 package-lock.json
 .eslintcache
+
+public/outputs/
+public/uploads/

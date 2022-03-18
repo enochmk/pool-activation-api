@@ -29,6 +29,8 @@ const errorHandler = (error: any, req: Request, res: Response, _next: NextFuncti
 			: res.status(error.statusCode).json(response);
 	}
 
+	console.log({ error });
+
 	// ! Generic Error handler
 	response.message = messages.TECHNICAL_ISSUE;
 	return channelID === 'ussd' ? res.send(response.message) : res.status(500).json(response);

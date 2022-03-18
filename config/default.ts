@@ -8,6 +8,7 @@ const config = {
 	logger: {
 		console: true,
 	},
+
 	api: {
 		airteltigoVerificationUrl: process.env.VERIFICATION_ENGINE_HOST,
 		cbs: {
@@ -15,6 +16,11 @@ const config = {
 			username: process.env.CBS_USERNAME,
 			password: process.env.CBS_PASSWORD,
 		},
+	},
+
+	upload: {
+		destination: 'public/uploads',
+		output: 'public/outputs',
 	},
 };
 
