@@ -1,4 +1,5 @@
-const getKeyByValue = (obj: any, value: any) => Object.keys(obj).find((key) => obj[key] === value);
+export const getKeyByValue = (obj: any, value: any) =>
+	Object.keys(obj).find((key) => obj[key] === value);
 
 export const getPaymentMode = (paidMode: string) => {
 	switch (paidMode) {
@@ -12,3 +13,5 @@ export const getPaymentMode = (paidMode: string) => {
 			return 'UNDEFINED';
 	}
 };
+
+export const cleanXML = (data: string): any => data.replace(/&/g, '&amp;').replace(/-/g, '&#45;');

@@ -3,10 +3,10 @@ import config from 'config';
 import xml2js from 'xml2js';
 import { nanoid } from 'nanoid';
 
-import { systems } from '../helpers/constants';
+import { systems } from '../utils/constants/variables';
 import HttpError from '../utils/errors/HttpError';
 import messages from '../utils/messages/cbs.messages';
-import cleanXml from '../helpers/cleanXml';
+import { cleanXML } from '../helpers/utilities';
 
 const URL: string = config.get('api.cbs.url');
 const USERNAME: string = config.get('api.cbs.username');
@@ -58,7 +58,7 @@ const createNumber = async (requestID: string, msisdn: string, agentID: string) 
 	`;
 
 	const soapResponseRaw = await axios.post(URL, soapRequest, SOAP_ACTION_HEADER);
-	const soapResponseClean: string = cleanXml(soapResponseRaw.data);
+	const soapResponseClean: string = cleanXML(soapResponseRaw.data);
 
 	const jsonResponse = await xml2js.parseStringPromise(soapResponseClean);
 	const responseData = jsonResponse['soapenv:Envelope']['soapenv:Body']?.[0];
