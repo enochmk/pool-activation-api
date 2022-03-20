@@ -1,18 +1,17 @@
 import fs from 'fs';
 import config from 'config';
 import moment from 'moment';
-/* eslint-disable arrow-body-style */
 
 import logger from '../utils/loggers/logger';
 import createNumber from '../api/createNumber.api';
 import deleteNumber from '../api/deleteNumber.api';
 import integrationEnquiry from '../api/integrationEnquiry.api';
-import { PoolActivationInput } from '../validations/poolActivation.schema';
+import { RequestInput } from '../validations/request.schema';
 
 const IN_POOL = '5';
 const PREPAID = '0';
 
-export const poolActivation = async (data: PoolActivationInput, label = 'poolActivation') => {
+export const poolActivation = async (data: RequestInput, label = 'poolActivation') => {
 	const requestID = data.requestID;
 	const agentID = data.agentID;
 	const msisdn = data.msisdn.replace('\r', '').trim();
@@ -60,11 +59,7 @@ export const poolActivation = async (data: PoolActivationInput, label = 'poolAct
 	};
 };
 
-export const poolActivateAndLog = async (
-	data: PoolActivationInput,
-	path: string,
-	label: string
-) => {
+export const poolActivateAndLog = async (data: RequestInput, path: string, label: string) => {
 	const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
 	const { agentID, msisdn } = data;
 	const { message, success } = await poolActivation(data, label);
@@ -77,22 +72,20 @@ export const poolActivateAndLog = async (
 };
 
 export const runInPararrel = async (
-	activationInputArray: Array<PoolActivationInput>,
+	activationInputArray: Array<RequestInput>,
 	path: string,
 	label: string
 ) => {
-	const promises = activationInputArray.map((input) => {
-		return poolActivateAndLog(input, path, label);
-	});
+	const promises = activationInputArray.map((input) => poolActivateAndLog(input, path, label));
 
 	// run all promises concurrently
-	const results = await Promise.all(promises);
+	const results = await Promise.allSettled(promises);
 
 	return results;
 };
 
 export const runInSeries = async (
-	activationInputArray: Array<PoolActivationInput>,
+	activationInputArray: Array<RequestInput>,
 	path: string,
 	label: string
 ) => {
@@ -107,27 +100,23 @@ export const runInSeries = async (
 };
 
 export const poolActivationBatch = async (data: any, file: any) => {
-	const content = fs.readFileSync(file.path, 'utf8').split('\r\n');
+	const content = fs.readFileSync(file.path, 'utf8').split('\n');
 
 	// get clean msisdns from content row by row
-	const msisdns = content.filter((row) => {
-		return row?.length && row.replace('\r\n', '').trim();
-	});
+	const msisdns = content.filter((row) => row?.length && row.replace('\r\n', '').trim());
 
-	const activationInputArray: Array<PoolActivationInput> = msisdns.map((msisdn) => {
-		return {
-			requestID: data.requestID,
-			agentID: data.agentID,
-			msisdn,
-		};
-	});
+	const activationInputArray: Array<RequestInput> = msisdns.map((msisdn) => ({
+		requestID: data.requestID,
+		agentID: data.agentID,
+		msisdn,
+	}));
 
 	const time = moment().format('YYYYMMDD_HHmmss');
 	const outputFileName = `${time}-${data.agentID}.txt`;
 	const outputDestination = `${config.get('upload.output')}/${outputFileName}`;
 
-	await runInSeries(activationInputArray, outputDestination, 'poolActivationBatch');
-	// await runInPararrel(activationInputArray, outputDestination, 'poolActivationBatch');
+	// await runInSeries(activationInputArray, outputDestination, 'poolActivationBatch');
+	await runInPararrel(activationInputArray, outputDestination, 'poolActivationBatch');
 
 	return {
 		destination: outputDestination,
