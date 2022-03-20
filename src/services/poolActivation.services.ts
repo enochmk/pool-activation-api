@@ -1,11 +1,11 @@
 import fs from 'fs';
-import config from 'config';
-import moment from 'moment';
 
-import logger from '../utils/loggers/logger';
 import createNumber from '../api/createNumber.api';
 import deleteNumber from '../api/deleteNumber.api';
 import integrationEnquiry from '../api/integrationEnquiry.api';
+import logger from '../utils/loggers/logger';
+import reportLogger from '../utils/loggers/reportLogger';
+import { runInPararrel } from '../helpers/executeFlow';
 import { RequestInput } from '../validations/request.schema';
 
 const IN_POOL = '5';
@@ -46,7 +46,7 @@ export const poolActivation = async (data: RequestInput, label = 'poolActivation
 		};
 	}
 
-	// Delete number
+	// Delete number and create number
 	await deleteNumber(requestID, msisdn, agentID);
 	await createNumber(requestID, msisdn, agentID);
 
@@ -59,44 +59,20 @@ export const poolActivation = async (data: RequestInput, label = 'poolActivation
 	};
 };
 
-export const poolActivateAndLog = async (data: RequestInput, path: string, label: string) => {
-	const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
-	const { agentID, msisdn } = data;
+export const poolActivateAndReport = async (data: RequestInput, label: string) => {
 	const { message, success } = await poolActivation(data, label);
-	const line = `${timestamp}|${agentID}|${msisdn}|${success}|${message}`;
 
-	// write/append to file
-	fs.appendFileSync(path, `${line}\n`);
+	const info = {
+		message,
+		status: success,
+		requestID: data.requestID,
+		agentID: data.agentID,
+		msisdn: data.msisdn,
+	};
 
-	return { message, success };
-};
+	const outputDestination = reportLogger(info);
 
-export const runInPararrel = async (
-	activationInputArray: Array<RequestInput>,
-	path: string,
-	label: string
-) => {
-	const promises = activationInputArray.map((input) => poolActivateAndLog(input, path, label));
-
-	// run all promises concurrently
-	const results = await Promise.allSettled(promises);
-
-	return results;
-};
-
-export const runInSeries = async (
-	activationInputArray: Array<RequestInput>,
-	path: string,
-	label: string
-) => {
-	const results = [];
-
-	for (let i = 0; i < activationInputArray.length; i += 1) {
-		const response = await poolActivateAndLog(activationInputArray[i], path, label);
-		results.push(response);
-	}
-
-	return results;
+	return { ...info, outputDestination };
 };
 
 export const poolActivationBatch = async (data: any, file: any) => {
@@ -111,15 +87,13 @@ export const poolActivationBatch = async (data: any, file: any) => {
 		msisdn,
 	}));
 
-	const time = moment().format('YYYYMMDD_HHmmss');
-	const outputFileName = `${time}-${data.agentID}.txt`;
-	const outputDestination = `${config.get('upload.output')}/${outputFileName}`;
-
-	// await runInSeries(activationInputArray, outputDestination, 'poolActivationBatch');
-	await runInPararrel(activationInputArray, outputDestination, 'poolActivationBatch');
+	const result = await runInPararrel(
+		activationInputArray,
+		'poolActivationBatch',
+		poolActivateAndReport
+	);
 
 	return {
-		destination: outputDestination,
-		fileName: outputFileName,
+		destination: result,
 	};
 };
