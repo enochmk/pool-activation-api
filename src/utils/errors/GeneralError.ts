@@ -5,9 +5,9 @@ class GeneralError extends Error {
 
 	system: string;
 
-	constructor(system: string | null) {
+	constructor(system: string = 'BIOSIMREG') {
 		super(Messages.TECHNICAL_ISSUE);
-		this.system = system || 'BIOSIMREG';
+		this.system = system;
 		this.name = this.constructor.name;
 		this.statusCode = 500;
 	}
