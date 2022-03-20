@@ -3,6 +3,7 @@ import moment from 'moment';
 
 import HttpError from '../utils/errors/HttpError';
 import ValidationError from '../utils/errors/ValidationError';
+import logger from '../utils/loggers/logger';
 import messages from '../utils/messages/app.messages';
 
 // eslint-disable-next-line
@@ -29,10 +30,10 @@ const errorHandler = (error: any, req: Request, res: Response, _next: NextFuncti
 			: res.status(error.statusCode).json(response);
 	}
 
-	console.log({ error });
-
 	// ! Generic Error handler
+	logger.error(error.message);
 	response.message = messages.TECHNICAL_ISSUE;
+
 	return channelID === 'ussd' ? res.send(response.message) : res.status(500).json(response);
 };
 
