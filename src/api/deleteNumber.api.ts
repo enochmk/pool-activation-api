@@ -14,14 +14,14 @@ const PASSWORD: string = config.get('api.cbs.password');
 const SUCCESS_CODE: string = '405000000';
 const SYSTEM: string = systems.CBS;
 
-const deleteNumber = async (requestID: string, msisdn: string, agentID: string) => {
-	const soapActionConfig = {
-		headers: {
-			'Content-Type': 'text/xml',
-			SoapAction: 'DeleteSubscriber',
-		},
-	};
+const SOAP_ACTION_HEADER = {
+	headers: {
+		'Content-Type': 'text/xml',
+		SoapAction: 'DeleteSubscriber',
+	},
+};
 
+const deleteNumber = async (requestID: string, msisdn: string, agentID: string) => {
 	const newRequestID = nanoid();
 
 	const soapRequest = `
@@ -54,20 +54,23 @@ const deleteNumber = async (requestID: string, msisdn: string, agentID: string) 
 		</soapenv:Envelope>
 	`;
 
-	const soapResponseRaw = await axios.post(URL, soapRequest, soapActionConfig);
+	const soapResponseRaw = await axios.post(URL, soapRequest, SOAP_ACTION_HEADER);
 	const soapResponseClean: string = cleanXml(soapResponseRaw.data);
 
 	const jsonResponse = await xml2js.parseStringPromise(soapResponseClean);
-	const responseData = jsonResponse['soapenv:Envelope']['soapenv:Body'][0];
+	const responseData = jsonResponse['soapenv:Envelope']['soapenv:Body']?.[0];
 
 	// ! fault response
 	if (responseData['soapenv:Fault']) {
-		const faultMessage = responseData['soapenv:Fault'][0].faultString[0];
+		const faultMessage =
+			responseData['soapenv:Fault']?.[0]?.faultString[0] ||
+			responseData['soapenv:Fault']?.[0]?.faultstring[0];
+
 		throw new HttpError(faultMessage, 500, SYSTEM);
 	}
 
 	const deleteSubscriberResultMsg =
-		jsonResponse['soapenv:Envelope']['soapenv:Body'][0].DeleteSubscriberResultMsg[0];
+		jsonResponse['soapenv:Envelope']['soapenv:Body'][0]?.DeleteSubscriberResultMsg?.[0];
 
 	const resultCode: string = deleteSubscriberResultMsg.ResultHeader[0].ResultCode[0]._;
 	const resultDesc: string = deleteSubscriberResultMsg.ResultHeader[0].ResultDesc[0]._;
@@ -77,10 +80,9 @@ const deleteNumber = async (requestID: string, msisdn: string, agentID: string) 
 		if (resultDesc.includes(messages.CBS_ERROR_MESSAGE)) {
 			throw new HttpError(messages.SYSTEM_BUSY, 503, SYSTEM);
 		}
+
 		throw new HttpError(resultDesc, 400, SYSTEM);
 	}
-
-	return true;
 };
 
 export default deleteNumber;

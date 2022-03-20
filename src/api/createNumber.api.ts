@@ -14,14 +14,14 @@ const PASSWORD: string = config.get('api.cbs.password');
 const SUCCESS_CODE: string = '405000000';
 const SYSTEM: string = systems.CBS;
 
-const createNumber = async (requestID: string, msisdn: string, agentID: string) => {
-	const soapActionConfig = {
-		headers: {
-			'Content-Type': 'text/xml',
-			SoapAction: 'NewSubscriber',
-		},
-	};
+const SOAP_ACTION_HEADER = {
+	headers: {
+		'Content-Type': 'text/xml',
+		SoapAction: 'NewSubscriber',
+	},
+};
 
+const createNumber = async (requestID: string, msisdn: string, agentID: string) => {
 	const newRequestID = nanoid();
 
 	const soapRequest = `
@@ -57,11 +57,11 @@ const createNumber = async (requestID: string, msisdn: string, agentID: string) 
 		</soapenv:Envelope>
 	`;
 
-	const soapResponseRaw = await axios.post(URL, soapRequest, soapActionConfig);
+	const soapResponseRaw = await axios.post(URL, soapRequest, SOAP_ACTION_HEADER);
 	const soapResponseClean: string = cleanXml(soapResponseRaw.data);
 
 	const jsonResponse = await xml2js.parseStringPromise(soapResponseClean);
-	const responseData = jsonResponse['soapenv:Envelope']['soapenv:Body'][0];
+	const responseData = jsonResponse['soapenv:Envelope']['soapenv:Body']?.[0];
 
 	// ! fault response
 	if (responseData['soapenv:Fault']) {
@@ -70,7 +70,7 @@ const createNumber = async (requestID: string, msisdn: string, agentID: string) 
 	}
 
 	const newSubscriberResultMsg =
-		jsonResponse['soapenv:Envelope']['soapenv:Body'][0].NewSubscriberResultMsg[0];
+		jsonResponse['soapenv:Envelope']['soapenv:Body'][0]?.NewSubscriberResultMsg?.[0];
 
 	const resultCode: string = newSubscriberResultMsg.ResultHeader[0].ResultCode[0]._;
 	const resultDesc: string = newSubscriberResultMsg.ResultHeader[0].ResultDesc[0]._;
@@ -80,10 +80,9 @@ const createNumber = async (requestID: string, msisdn: string, agentID: string) 
 		if (resultDesc.includes(messages.CBS_ERROR_MESSAGE)) {
 			throw new HttpError(messages.SYSTEM_BUSY, 503, SYSTEM);
 		}
+
 		throw new HttpError(resultDesc, 400, SYSTEM);
 	}
-
-	return true;
 };
 
 export default createNumber;
