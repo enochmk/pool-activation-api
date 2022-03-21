@@ -5,8 +5,9 @@ import deleteNumber from '../api/deleteNumber.api';
 import integrationEnquiry from '../api/integrationEnquiry.api';
 import logger from '../utils/loggers/logger';
 import reportLogger from '../utils/loggers/reportLogger';
-import { runInPararrel } from '../helpers/executeFlow';
+import { runInPararrel, runInSeries } from '../helpers/executeFlow';
 import { RequestInput } from '../validations/request.schema';
+import { cleanMSISDNFromArray } from '../helpers/utilities';
 
 const IN_POOL = '5';
 const PREPAID = '0';
@@ -79,19 +80,16 @@ export const poolActivationBatch = async (data: any, file: any) => {
 	const content = fs.readFileSync(file.path, 'utf8').split('\n');
 
 	// get clean msisdns from content row by row
-	const msisdns = content.filter((row) => row?.length && row.replace('\r\n', '').trim());
+	const msisdns = cleanMSISDNFromArray(content);
 
-	const activationInputArray: Array<RequestInput> = msisdns.map((msisdn) => ({
+	const requestArray: Array<RequestInput> = msisdns.map((msisdn) => ({
 		requestID: data.requestID,
 		agentID: data.agentID,
 		msisdn,
 	}));
 
-	const result = await runInPararrel(
-		activationInputArray,
-		'poolActivationBatch',
-		poolActivateAndReport
-	);
+	// FIXME: Return file name
+	const result = await runInSeries(requestArray, 'poolActivationBatch', poolActivateAndReport);
 
 	return {
 		destination: result,

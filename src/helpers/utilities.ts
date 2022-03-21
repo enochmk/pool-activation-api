@@ -15,3 +15,22 @@ export const getPaymentMode = (paidMode: string) => {
 };
 
 export const cleanXML = (data: string): any => data.replace(/&/g, '&amp;').replace(/-/g, '&#45;');
+
+export const cleanMSISDNFromString = (item: string): boolean => {
+	item = item.replace('\r\n', '').trim();
+	const isValid: boolean = item?.length === 9 && !Number.isNaN(Number(item));
+
+	return isValid;
+};
+
+export const cleanMSISDNFromArray = (content: Array<string>) => {
+	const newArray = content.filter((item) => {
+		const isValid = cleanMSISDNFromString(item);
+
+		if (isValid) {
+			return item;
+		}
+	});
+
+	return newArray;
+};
