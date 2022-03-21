@@ -1,5 +1,5 @@
 import { runInPararrel, runInSeries } from '../helpers/executeFlow';
-import { batchGetIntegrationEnquiry } from '../services/integrationEnquiry.services';
+import { poolActivateAndReport } from '../services/poolActivation.services';
 
 const requestArray = [
 	{
@@ -20,7 +20,7 @@ const requestArray = [
 ];
 
 test('run array of request in parallel', async () => {
-	// const result = await runInPararrel(requestArray, 'test', poolActivateAndReport);
+	const result = await runInPararrel(requestArray, 'test', poolActivateAndReport);
 	// console.log(result);
 });
 
