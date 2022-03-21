@@ -23,6 +23,8 @@
 		"import/prefer-default-export": "off",
 		"no-await-in-loop": "off",
 		"prefer-destructuring": "off",
-		"no-param-reassign": "off"
+		"no-param-reassign": "off",
+		"consistent-return": "off",
+		"array-callback-return": "off"
 	}
 }
