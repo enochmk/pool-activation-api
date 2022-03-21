@@ -25,13 +25,13 @@ export const poolActivationBatch = asyncHandler(
 		const response = await poolNumberService.poolActivationBatch(data, file);
 
 		// condition to download or send response
-		if (shouldDownload === 'true') {
-			return res.download(response.destination, (err) => {
-				if (err) {
-					throw err;
-				}
-			});
-		}
+		// if (shouldDownload === 'true') {
+		// 	return res.download(response.destination, (err) => {
+		// 		if (err) {
+		// 			throw err;
+		// 		}
+		// 	});
+		// }
 
 		return res.status(200).json({ ...response });
 	}
