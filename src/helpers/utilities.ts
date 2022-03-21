@@ -1,3 +1,5 @@
+import { uniq } from 'lodash';
+
 export const getKeyByValue = (obj: any, value: any) =>
 	Object.keys(obj).find((key) => obj[key] === value);
 
@@ -32,5 +34,7 @@ export const cleanMSISDNFromArray = (content: Array<string>) => {
 		}
 	});
 
-	return newArray;
+	const uniqueArray = uniq(newArray);
+
+	return uniqueArray;
 };

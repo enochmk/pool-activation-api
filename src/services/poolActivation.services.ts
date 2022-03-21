@@ -23,41 +23,48 @@ export const poolActivation = async (data: RequestInput, label = 'poolActivation
 		label: label,
 	};
 
-	const cbsInfo = await integrationEnquiry(requestID, msisdn);
+	try {
+		const cbsInfo = await integrationEnquiry(requestID, msisdn);
 
-	// ! Not prepaid
-	if (cbsInfo.paidMode !== PREPAID) {
-		const message = `Number not prepaid. Number is ${cbsInfo.paidModeName}`;
-		logger.error(message, { context });
+		// ! Not prepaid
+		if (cbsInfo.paidMode !== PREPAID) {
+			const message = `Number not prepaid. Number is ${cbsInfo.paidModeName}`;
+			logger.error(message, { context });
+
+			return {
+				success: false,
+				message: message,
+			};
+		}
+
+		// ! Not in pool
+		if (cbsInfo.lifeCycleState !== IN_POOL) {
+			const message = `Number not in pool. Lifecycle state is '${cbsInfo.lifeCycleState}'`;
+			logger.error(message, { context });
+
+			return {
+				success: false,
+				message,
+			};
+		}
+
+		// Delete number and create number
+		await deleteNumber(requestID, msisdn, agentID);
+		await createNumber(requestID, msisdn, agentID);
+
+		const message = 'Number successfully re-created.';
+		logger.info(message, { context });
 
 		return {
-			success: false,
-			message: message,
-		};
-	}
-
-	// ! Not in pool
-	if (cbsInfo.lifeCycleState !== IN_POOL) {
-		const message = `Number not in pool. Lifecycle state is '${cbsInfo.lifeCycleState}'`;
-		logger.error(message, { context });
-
-		return {
-			success: false,
+			success: true,
 			message,
 		};
+	} catch (error: any) {
+		return {
+			success: false,
+			message: error.message,
+		};
 	}
-
-	// Delete number and create number
-	await deleteNumber(requestID, msisdn, agentID);
-	await createNumber(requestID, msisdn, agentID);
-
-	const message = 'Number successfully re-created.';
-	logger.info(message, { context });
-
-	return {
-		success: true,
-		message,
-	};
 };
 
 export const poolActivateAndReport = async (data: RequestInput, label: string) => {
