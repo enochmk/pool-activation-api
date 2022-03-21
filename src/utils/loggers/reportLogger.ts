@@ -25,7 +25,7 @@ const reportLogger = (info: IContext): string => {
 	}
 
 	const fileName = `${time}_${info.agentID}.txt`;
-	const outputDestination = `${outputPath}/${currentDate}/${fileName}`;
+	const outputDestination = `${folder}/${fileName}`;
 
 	// write/append to file
 	fs.appendFileSync(outputDestination, `${row}\n`);
