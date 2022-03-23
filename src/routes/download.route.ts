@@ -4,6 +4,6 @@ import { downloadFile } from '../controllers/download.controller';
 
 const router = Router();
 
-router.route('/download').post(downloadFile);
+router.route('/download').get(downloadFile);
 
 export default router;

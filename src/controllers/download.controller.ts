@@ -4,10 +4,9 @@ import { Request, Response } from 'express';
 import asyncHandler from '../middlewares/async.middleware';
 
 export const downloadFile = asyncHandler(async (req: Request, res: Response) => {
-	const file: any = req.query.file;
-	const source: string = config.get('upload.output');
+	const name: any = req.query.file;
 
-	return res.download(`${source}/${file}`, (err) => {
+	return res.download(name, (err) => {
 		if (err) throw err;
 	});
 });
