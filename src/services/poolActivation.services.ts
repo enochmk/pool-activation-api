@@ -86,8 +86,10 @@ export const poolActivateAndReport = async (data: RequestInput, label: string) =
 export const poolActivationBatch = async (data: any, file: any) => {
 	const content = fs.readFileSync(file.path, 'utf8').split('\n');
 
+	const newContent = content.map((str) => str.replace('\r', ''));
+
 	// get clean msisdns from content row by row
-	const msisdns = cleanMSISDNFromArray(content);
+	const msisdns = cleanMSISDNFromArray(newContent);
 
 	const requestArray: Array<RequestInput> = msisdns.map((msisdn) => ({
 		requestID: data.requestID,
