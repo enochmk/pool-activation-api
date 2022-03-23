@@ -27,7 +27,7 @@ const reportLogger = (info: IContext): string => {
 	const outputDestination = `${folder}/${fileName}`;
 
 	// write/append to file
-	fs.appendFileSync(outputDestination, `${row}\n`);
+	fs.appendFileSync(outputDestination, `${row}`);
 
 	return outputDestination;
 };
