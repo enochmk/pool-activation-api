@@ -14,7 +14,6 @@ interface IContext {
 
 const reportLogger = (info: IContext): string => {
 	const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
-	const time = moment().format('HHmmss');
 	const row = `${timestamp}|${info.agentID}|${info.status}|${info.msisdn}|${info.message}\n`;
 
 	const currentDate = moment().format('YYYYMMDD');
@@ -24,7 +23,7 @@ const reportLogger = (info: IContext): string => {
 		fs.mkdirSync(folder);
 	}
 
-	const fileName = `${time}_${info.agentID}.txt`;
+	const fileName = `${info.requestID}.txt`;
 	const outputDestination = `${folder}/${fileName}`;
 
 	// write/append to file

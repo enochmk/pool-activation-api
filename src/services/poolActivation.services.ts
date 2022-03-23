@@ -96,7 +96,7 @@ export const poolActivationBatch = async (data: any, file: any) => {
 	}));
 
 	// FIXME: Return file name
-	const result = await runInSeries(requestArray, 'poolActivationBatch', poolActivateAndReport);
+	const result = await runInPararrel(requestArray, 'poolActivationBatch', poolActivateAndReport);
 
 	return {
 		destination: result,
