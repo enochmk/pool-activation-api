@@ -1,12 +1,16 @@
-import config from 'config';
 import { Request, Response } from 'express';
 
 import asyncHandler from '../middlewares/async.middleware';
+import HttpError from '../utils/errors/HttpError';
 
-export const downloadFile = asyncHandler(async (req: Request, res: Response) => {
-	const name: any = req.query.file;
+export const downloadFile = asyncHandler((req: Request, res: Response) => {
+	if (!req.query.filePath) {
+		throw new HttpError('filePath need', 400, 'APP');
+	}
 
-	return res.download(name, (err) => {
+	const filePath: any = req.query?.filePath;
+
+	res.download(filePath, (err) => {
 		if (err) throw err;
 	});
 });
