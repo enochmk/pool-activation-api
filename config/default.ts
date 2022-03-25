@@ -8,7 +8,7 @@ const config = {
 	logger: {
 		console: true,
 	},
-	tps: 50,
+	tps: Number(process.env.TPS_LIMIT) || 50,
 	api: {
 		airteltigoVerificationUrl: process.env.VERIFICATION_ENGINE_HOST,
 		cbs: {
