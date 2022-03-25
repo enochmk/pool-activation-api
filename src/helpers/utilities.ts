@@ -16,6 +16,23 @@ export const getPaymentMode = (paidMode: string) => {
 	}
 };
 
+export const getSubscriberLifecycle = (lifeCycleState: string) => {
+	switch (lifeCycleState) {
+		case '1':
+			return 'IDLE';
+		case '2':
+			return 'ACTIVE';
+		case '3':
+			return 'SUSPEND';
+		case '4':
+			return 'DISABLED';
+		case '5':
+			return 'POOL';
+		default:
+			return 'UNDEFINED';
+	}
+};
+
 export const cleanXML = (data: string): any => data.replace(/&/g, '&amp;').replace(/-/g, '&#45;');
 
 export const cleanMSISDNFromString = (item: string): boolean => {
