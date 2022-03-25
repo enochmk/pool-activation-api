@@ -7,7 +7,7 @@ import logger from '../utils/loggers/logger';
 import reportLogger from '../utils/loggers/reportLogger';
 import { runInSeriesAndPararrel } from '../helpers/executeFlow';
 import { RequestInput } from '../validations/request.schema';
-import { cleanMSISDNFromArray } from '../helpers/utilities';
+import { cleanMSISDNFromArray, getSubscriberLifecycle } from '../helpers/utilities';
 
 const IN_POOL = '5';
 const PREPAID = '0';
@@ -39,7 +39,8 @@ export const poolActivation = async (data: RequestInput, label = 'poolActivation
 
 		// ! Not in pool
 		if (cbsInfo.lifeCycleState !== IN_POOL) {
-			const message = `Number not in pool. Lifecycle state is '${cbsInfo.lifeCycleState}'`;
+			const lifecycle = getSubscriberLifecycle(cbsInfo.lifeCycleState);
+			const message = `Number not in pool. Lifecycle state is '${lifecycle}'`;
 			logger.error(message, { context });
 
 			return {
