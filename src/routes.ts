@@ -10,6 +10,7 @@ const router = Router();
 router.use(createNumber);
 router.use(integrationEnquiry);
 router.use(poolActivation);
+router.use('/tools', poolActivation);
 router.use(download);
 
 export default router;
