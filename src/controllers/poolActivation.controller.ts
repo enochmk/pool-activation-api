@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 
 import asyncHandler from '../middlewares/async.middleware';
 import * as poolNumberService from '../services/poolActivation.services';
+import HttpError from '../utils/errors/HttpError';
 import { RequestInput, BatchRequestInput } from '../validations/request.schema';
 
 export const poolActivation = asyncHandler(
@@ -9,6 +10,10 @@ export const poolActivation = asyncHandler(
 		const data = req.body;
 
 		const response = await poolNumberService.poolActivation(data);
+
+		if (!response.success) {
+			throw new HttpError(response.message, 400);
+		}
 
 		res.status(200).json({
 			...response,
