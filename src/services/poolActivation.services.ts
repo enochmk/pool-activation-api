@@ -72,9 +72,6 @@ export const poolActivation = async (data: RequestInput, label = 'poolActivation
 export const poolActivateAndReport = async (data: RequestInput, label: string) => {
 	const { message, success } = await poolActivation(data, label);
 
-	// const message = 'Testing';
-	// const success = true;
-
 	const info = {
 		message,
 		status: success,
@@ -101,6 +98,7 @@ export const poolActivationBatch = async (data: any, file: any) => {
 		const system = 'Pool activation';
 		throw new HttpError(message, 400, system);
 	}
+
 	const requestArray: Array<RequestInput> = msisdns.map((msisdn) => ({
 		requestID: data.requestID,
 		agentID: data.agentID,
