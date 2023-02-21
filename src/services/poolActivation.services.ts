@@ -10,7 +10,7 @@ import { RequestInput } from '../validations/request.schema';
 import { cleanMSISDNFromArray, getSubscriberLifecycle } from '../helpers/utilities';
 import HttpError from '../utils/errors/HttpError';
 
-const IN_POOL = '5';
+const CRITERIA = ['5','1'];
 const PREPAID = '0';
 
 export const poolActivation = async (data: RequestInput, label = 'poolActivation') => {
@@ -39,7 +39,7 @@ export const poolActivation = async (data: RequestInput, label = 'poolActivation
 		}
 
 		// ! Not in pool
-		if (cbsInfo.lifeCycleState !== IN_POOL) {
+		if (!CRITERIA.includes(cbsInfo.lifeCycleState)) {
 			const lifecycle = getSubscriberLifecycle(cbsInfo.lifeCycleState);
 			const message = `Number not in pool. Lifecycle state is '${lifecycle}'`;
 			logger.error(message, { context });
