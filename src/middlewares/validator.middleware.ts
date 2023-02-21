@@ -5,6 +5,9 @@ import ValidationError from '../utils/errors/ValidationError';
 
 const validator =
 	(schema: AnySchema) => async (req: Request, res: Response, next: NextFunction) => {
+
+		console.log({ file: req.file })
+		
 		try {
 			await schema.validate({
 				body: req.body,
