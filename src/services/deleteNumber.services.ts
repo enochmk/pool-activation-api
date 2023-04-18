@@ -76,7 +76,8 @@ export const deleteNumberBatch = async (data: any, file: any) => {
 	const result = await runInSeriesAndPararrel(
 		requestArray,
 		'deleteNumberBatch',
-		deleteNumberAndReport
+		deleteNumberAndReport,
+		250
 	);
 
 	return {

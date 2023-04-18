@@ -27,9 +27,10 @@ export const runInSeries = async (requestArray: Array<RequestInput>, label: stri
 export const runInSeriesAndPararrel = async (
 	requestArray: Array<RequestInput>,
 	label: string,
-	fn: any
+	fn: any,
+	tps?: number
 ) => {
-	const LIMIT = config.get('tps') as number;
+	const LIMIT = tps || (config.get('tps') as number);
 	const size = requestArray.length;
 	const result = [];
 
