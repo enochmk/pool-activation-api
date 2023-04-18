@@ -1,5 +1,4 @@
 import config from 'config';
-
 import { RequestInput } from '../validations/request.schema';
 
 export const runInPararrel = async (requestArray: Array<RequestInput>, label: string, fn: any) => {
