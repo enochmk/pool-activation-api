@@ -21,8 +21,14 @@ const SOAP_ACTION_HEADER = {
 	},
 };
 
-const deleteNumber = async (requestID: string, msisdn: string, agentID: string) => {
+const deleteNumber = async (
+	requestID: string,
+	msisdn: string,
+	agentID: string,
+	remark?: string
+) => {
 	const newRequestID = nanoid();
+	const remarkMessage = remark || `Pool_recreation_${agentID}`;
 
 	const soapRequest = `
 		<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:bus="http://www.huawei.com/bme/cbsinterface/cbs/businessmgrmsg" xmlns:com="http://www.huawei.com/bme/cbsinterface/common" xmlns:bus1="http://www.huawei.com/bme/cbsinterface/cbs/businessmgr">
@@ -42,7 +48,7 @@ const deleteNumber = async (requestID: string, msisdn: string, agentID: string) 
 								</com:SessionEntity>
 								<com:SerialNo>${newRequestID}</com:SerialNo>
 								<!--Optional:-->
-								<com:Remark>Pool_recreation_${agentID}</com:Remark>
+								<com:Remark>${remarkMessage}</com:Remark>
 						</RequestHeader>
 						<DeleteSubscriberRequest>
 								<bus1:SubscriberNo>

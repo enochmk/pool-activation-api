@@ -21,8 +21,7 @@ export const deleteNumberService = async (data: RequestInput, label = 'deleteNum
 
 	try {
 		// Delete number and create number
-		await deleteNumber(requestID, msisdn, agentID);
-
+		await deleteNumber(requestID, msisdn, agentID, 'NCA_DELETION');
 		const message = 'Number successfully deleted.';
 		logger.info(message, { context });
 
