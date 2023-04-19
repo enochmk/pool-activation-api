@@ -77,7 +77,7 @@ export const deleteNumberBatch = async (data: any, file: any) => {
 		requestArray,
 		'deleteNumberBatch',
 		deleteNumberAndReport,
-		250
+		50
 	);
 
 	return {
